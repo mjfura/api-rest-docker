@@ -8,7 +8,7 @@ app.use(express.json())
 
 app.use("/",(_req,res)=>{
     return res.status(200).send({
-        message:"API REST using Docker Compose"
+        message:"API REST with MongoDB using Docker Compose"
     })
 })
 

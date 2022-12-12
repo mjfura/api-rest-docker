@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  server_test:
+    container_name: server_test
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    command: sh -c "pnpm run test"
+    environment:
+      DB_URI: mongodb://$MONGO_TEST_USERNAME:$MONGO_TEST_PASSWORD@db_test:$MONGO_TEST_LOCAL_PORT/$MONGO_TEST_DATABASE?authSource=admin
+      PORT: $SERVER_TEST_LOCAL_PORT
+      NODE_ENV: testing
+    ports:
+      - $SERVER_TEST_LOCAL_PORT:$SERVER_TEST_REMOTE_PORT
+    volumes:
+      - .:/usr/src/app
+    links:
+      - db_test
+  db_test:
+    container_name: db_test
+    image: mongo
+    env_file:
+      - .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_TEST_USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_TEST_PASSWORD
+      MONGO_INITDB_DATABASE: $MONGO_TEST_DATABASE
+    ports:
+      - $MONGO_TEST_LOCAL_PORT:$MONGO_TEST_REMOTE_PORT
+    restart: always
+    volumes:
+      - data_test:/data/db
+volumes:
+  data_test:
+  

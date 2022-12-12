@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  server_prod:
+    container_name: server_prod
+    env_file:
+      - .env
+    build: .
+    command: sh -c "pnpm run build && pnpm start"
+    environment:
+      DB_URI: mongodb://db_prod:$MONGO_PROD_LOCAL_PORT/$MONGO_PROD_DATABASE
+      PORT: $SERVER_PROD_LOCAL_PORT
+      NODE_ENV: production
+    ports:
+      - $SERVER_PROD_LOCAL_PORT:$SERVER_PROD_REMOTE_PORT
+    volumes:
+      - .:/usr/src/app
+    links:
+      - db_prod
+  db_prod:
+    container_name: db_prod
+    image: mongo
+    env_file:
+      - .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_PROD_USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_PROD_PASSWORD
+      MONGO_INITDB_DATABASE: $MONGO_PROD_DATABASE
+    ports:
+      - $MONGO_PROD_LOCAL_PORT:$MONGO_PROD_REMOTE_PORT
+    restart: always
+    volumes:
+      - data:/data/db
+volumes:
+  data:
